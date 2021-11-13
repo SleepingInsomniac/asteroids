@@ -50,8 +50,7 @@ class Asteroids < Game
     end
 
     @bullets.each do |bullet|
-      bullet.update
-      bullet.age += dt
+      bullet.update(dt)
     end
 
     @bullets = @bullets.reject { |b| b.age >= 4.0 }

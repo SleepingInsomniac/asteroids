@@ -18,6 +18,12 @@ module LxGame
       @rotation_speed = 0.0
     end
 
+    def update_position(dt : Float64)
+      @rotation += @rotation_speed * dt
+      @position += @velocity * dt
+    end
+
+    abstract def update(dt : Float64)
     abstract def draw(renderer : SDL::Renderer)
   end
 end

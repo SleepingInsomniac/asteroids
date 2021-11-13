@@ -72,7 +72,7 @@ end
 puts "Copying Info.plist"
 FileUtils.cp 'Info.plist', "#{BUILD_DIR}/"
 
-build_cmd = %{shards build --release --link-flags="-rpath @executable_path/../Frameworks -L #{`brew --prefix sfml`.chomp}/lib/ -mmacosx-version-min=10.14 -headerpad_max_install_names"}
+build_cmd = %{shards build --release --link-flags="-rpath @executable_path/../Frameworks -L #{`brew --prefix sdl2`.chomp}/lib/ -mmacosx-version-min=10.14 -headerpad_max_install_names"}
 puts "Building: `#{build_cmd}`"
 puts `#{build_cmd}`
 

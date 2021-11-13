@@ -1,8 +1,9 @@
 class Bullet < Sprite
   property age : Float64 = 0.0
 
-  def update
-    @position += @velocity
+  def update(dt : Float64)
+    update_position(dt)
+    @age += dt
   end
 
   def draw(renderer)
