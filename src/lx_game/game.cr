@@ -13,8 +13,6 @@ module LxGame
 
     def initialize(@width, @height, @scale = 1)
       SDL.init(SDL::Init::VIDEO)
-      at_exit { SDL.quit }
-
       @window = SDL::Window.new("SDL test", @width * @scale, @height * @scale)
       @renderer = SDL::Renderer.new(@window, flags: SDL::Renderer::Flags::SOFTWARE)
       @renderer.scale = {@scale, @scale}
@@ -63,6 +61,8 @@ module LxGame
         engine_update
         engine_draw
       end
+    ensure
+      SDL.quit
     end
   end
 end

@@ -4,10 +4,12 @@ include CrystalEdge
 require "./lx_game/*"
 include LxGame
 require "./ship"
+require "./asteroid"
 require "./bullet"
 
 class Asteroids < Game
   @ship : Ship
+  @asteroids = [] of Asteroid
   @controller : Controller(LibSDL::Keycode)
 
   def initialize(*args)
@@ -15,6 +17,13 @@ class Asteroids < Game
 
     @ship = Ship.build do |ship|
       ship.position = Vector2.new(x: width / 2.0, y: height / 2.0)
+    end
+
+    4.times do
+      @asteroids << Asteroid.build do |a|
+        a.position = Vector2.new(x: rand(0.0..width.to_f), y: rand(0.0..height.to_f))
+        a.velocity = Vector2.new(x: rand(-20.0..20.0), y: rand(-20.0..20.0))
+      end
     end
 
     @controller = Controller(LibSDL::Keycode).new({
@@ -54,6 +63,10 @@ class Asteroids < Game
     end
 
     @bullets = @bullets.reject { |b| b.age >= 4.0 }
+    @asteroids.each do |a|
+      a.update(dt)
+      a.position = wrap(a.position)
+    end
   end
 
   def draw
@@ -61,6 +74,7 @@ class Asteroids < Game
     @renderer.clear
     @ship.draw(@renderer)
     @bullets.each { |b| b.draw(@renderer) }
+    @asteroids.each { |a| a.draw(@renderer) }
   end
 end
 

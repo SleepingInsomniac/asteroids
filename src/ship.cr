@@ -1,5 +1,4 @@
 class Ship < VectorSprite
-  getter frame : Array(Vector2)
   @fire_cooldown : Float64 = 0.0
   @fire_rate : Float64 = 0.2
   @emitter : Emitter
@@ -74,8 +73,9 @@ class Ship < VectorSprite
   end
 
   def update(dt : Float64)
+    super
+
     @fire_cooldown -= dt unless can_fire?
-    update_position(dt)
 
     @emitter.update(dt)
     @emitter.position = project_points([Vector2.new(-3.0, 0.0)]).first
@@ -100,13 +100,9 @@ class Ship < VectorSprite
     @l_emitter.emitting = false
     @r_emitter.draw(renderer)
     @r_emitter.emitting = false
+
     frame = project_points(@frame)
-
-    renderer.draw_color = SDL::Color[128, 128, 128, 255]
     renderer.draw_color = SDL::Color[255, 255, 255, 255]
-
-    draw_line(renderer, frame[0], frame[1])
-    draw_line(renderer, frame[1], frame[2])
-    draw_line(renderer, frame[2], frame[0])
+    draw_frame(renderer, frame)
   end
 end

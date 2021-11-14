@@ -1,6 +1,6 @@
 module LxGame
   # Draw a line using Bresenham’s Algorithm
-  def draw_line(renderer : SDL::Renderer, p1 : Vector2, p2 : Vector2, draw_points = false)
+  def draw_line(renderer : SDL::Renderer, p1 : Vector2, p2 : Vector2, draw_points = false, thickness = 1)
     return draw_line(renderer, p2, p1) if p1.x > p2.x
     x1, y1, x2, y2 = p1.x.to_i, p1.y.to_i, p2.x.to_i, p2.y.to_i
 
