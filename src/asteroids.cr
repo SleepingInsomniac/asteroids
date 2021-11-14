@@ -7,6 +7,22 @@ require "./ship"
 require "./asteroid"
 require "./bullet"
 
+WIDTH  = 600
+HEIGHT = 400
+SCALE  =   3
+
+module LxGame
+  def draw_point(renderer, x, y)
+    x = x % WIDTH
+    y = y % HEIGHT
+
+    x = WIDTH + x if x < 0
+    y = HEIGHT + y if y < 0
+
+    renderer.draw_point(x, y)
+  end
+end
+
 class Asteroids < Game
   @ship : Ship
   @asteroids = [] of Asteroid
@@ -23,6 +39,8 @@ class Asteroids < Game
       @asteroids << Asteroid.build do |a|
         a.position = Vector2.new(x: rand(0.0..width.to_f), y: rand(0.0..height.to_f))
         a.velocity = Vector2.new(x: rand(-20.0..20.0), y: rand(-20.0..20.0))
+        a.rotation_speed = rand(-5.0..5.0)
+        a.size = rand(0.5..4.0)
       end
     end
 
@@ -78,5 +96,5 @@ class Asteroids < Game
   end
 end
 
-game = Asteroids.new(200, 120, 4)
+game = Asteroids.new(WIDTH, HEIGHT, SCALE)
 game.run!

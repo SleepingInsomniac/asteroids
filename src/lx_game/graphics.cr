@@ -1,6 +1,6 @@
 module LxGame
   # Draw a line using Bresenham’s Algorithm
-  def draw_line(renderer : SDL::Renderer, p1 : Vector2, p2 : Vector2, draw_points = false, thickness = 1)
+  def draw_line(renderer : SDL::Renderer, p1 : Vector2, p2 : Vector2, draw_points = false, point_color = SDL::Color[255, 0, 0, 255])
     return draw_line(renderer, p2, p1) if p1.x > p2.x
     x1, y1, x2, y2 = p1.x.to_i, p1.y.to_i, p2.x.to_i, p2.y.to_i
 
@@ -14,7 +14,7 @@ module LxGame
     x, y = x1, y1
 
     loop do
-      renderer.draw_point(x, y)
+      draw_point(renderer, x, y)
       break if x == x2 && y == y2
 
       d2 = d + d
@@ -31,9 +31,13 @@ module LxGame
     end
 
     if draw_points
-      renderer.draw_color = SDL::Color[255, 0, 0, 255]
-      renderer.draw_point(x1, y1)
-      renderer.draw_point(x2, y2)
+      renderer.draw_color = point_color
+      draw_point(renderer, x1, y1)
+      draw_point(renderer, x2, y2)
     end
+  end
+
+  def draw_point(renderer, x1, y1)
+    renderer.draw_point(x1, y1)
   end
 end

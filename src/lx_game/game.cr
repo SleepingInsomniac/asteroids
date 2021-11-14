@@ -5,15 +5,16 @@ module LxGame
     property width : Int32
     property height : Int32
     property scale : Int32
+    property title : String
 
     @fps_lasttime : Float64 = Time.monotonic.total_milliseconds # the last recorded time.
     @fps_current : UInt32 = 0                                   # the current FPS.
     @fps_frames : UInt32 = 0                                    # frames passed since the last recorded fps.
     @last_time : Float64 = Time.monotonic.total_milliseconds
 
-    def initialize(@width, @height, @scale = 1)
+    def initialize(@width, @height, @scale = 1, @title = self.class.name)
       SDL.init(SDL::Init::VIDEO)
-      @window = SDL::Window.new("SDL test", @width * @scale, @height * @scale)
+      @window = SDL::Window.new(@title, @width * @scale, @height * @scale)
       @renderer = SDL::Renderer.new(@window, flags: SDL::Renderer::Flags::SOFTWARE)
       @renderer.scale = {@scale, @scale}
     end
@@ -33,7 +34,7 @@ module LxGame
         @fps_lasttime = et
         @fps_current = @fps_frames
         @fps_frames = 0
-        @window.title = String.build { |io| io << "SDL test - " << @fps_current << " fps" }
+        @window.title = String.build { |io| io << @title << " - " << @fps_current << " fps" }
       end
 
       update((et - @last_time) / 1000.0)

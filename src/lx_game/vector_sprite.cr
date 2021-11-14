@@ -4,7 +4,7 @@ module LxGame
 
     def self.generate_circle(num_points : Int, size = 1.0, jitter = 0.0) : Array(Vector2)
       0.upto(num_points).map do |n|
-        angle = (2 * Math::PI) * (n / 12)
+        angle = (2 * Math::PI) * (n / num_points)
 
         x = size + rand(-jitter..jitter)
 
