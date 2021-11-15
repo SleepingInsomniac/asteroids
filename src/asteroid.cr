@@ -3,10 +3,13 @@ class Asteroid < VectorSprite
 
   def initialize
     super
-    @frame = VectorSprite.generate_circle(15, size: 10.0, jitter: 3.0)
+    @frame = [] of Vector2
   end
 
   def draw(renderer)
+    # renderer.draw_color = SDL::Color[0, 100, 100, 255]
+    # draw_radius(renderer)
+
     frame = project_points(points: @frame, scale: Vector2.new(@size, @size))
     renderer.draw_color = SDL::Color[128, 128, 128, 255]
     draw_frame(renderer, frame)

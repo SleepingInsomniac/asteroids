@@ -35,12 +35,16 @@ class Asteroids < Game
       ship.position = Vector2.new(x: width / 2.0, y: height / 2.0)
     end
 
-    4.times do
+    8.times do
       @asteroids << Asteroid.build do |a|
         a.position = Vector2.new(x: rand(0.0..width.to_f), y: rand(0.0..height.to_f))
-        a.velocity = Vector2.new(x: rand(-20.0..20.0), y: rand(-20.0..20.0))
+        v_max = 30.0
+        a.velocity = Vector2.new(x: rand(-v_max..v_max), y: rand(-v_max..v_max))
         a.rotation_speed = rand(-5.0..5.0)
-        a.size = rand(0.5..4.0)
+
+        size = rand(5.0..30.0)
+        a.mass = size
+        a.frame = VectorSprite.generate_circle(size.to_i, size: size, jitter: 3.0)
       end
     end
 
@@ -84,6 +88,44 @@ class Asteroids < Game
     @asteroids.each do |a|
       a.update(dt)
       a.position = wrap(a.position)
+    end
+
+    collission_pairs = [] of Tuple(Asteroid, Asteroid)
+    @asteroids.each do |a|
+      @asteroids.each do |b|
+        next if a == b
+        next if collission_pairs.includes?({a, b})
+
+        if a.collides_with?(b)
+          collission_pairs << {a, b}
+          a.resolve_collision(b)
+          puts "#{a} collided with #{b}"
+        end
+      end
+    end
+
+    @bullets.each do |bullet|
+      @asteroids.each do |asteroid|
+        if bullet.collides_with?(asteroid)
+          if asteroid.mass > 3.0
+            2.times do
+              @asteroids << Asteroid.build do |a|
+                a.position = asteroid.position + Vector2.new(rand(-1.0..1.0), rand(-1.0..1.0))
+                v_max = 30.0
+                a.velocity = Vector2.new(x: rand(-v_max..v_max), y: rand(-v_max..v_max))
+                a.rotation_speed = rand(-5.0..5.0)
+                size = asteroid.average_radius / 2
+                a.mass = size
+                points = size < 6 ? 6 : size.to_i
+                a.frame = VectorSprite.generate_circle(points, size: size, jitter: 3.0)
+              end
+            end
+          end
+
+          @asteroids.delete(asteroid)
+          @bullets.delete(bullet)
+        end
+      end
     end
   end
 

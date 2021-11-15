@@ -11,4 +11,8 @@ class Bullet < Sprite
     renderer.draw_color = SDL::Color[brightness, brightness, 0]
     renderer.draw_point(@position.x.to_i, @position.y.to_i)
   end
+
+  def collides_with?(other : VectorSprite)
+    @position.distance(other.position) < other.average_radius
+  end
 end
