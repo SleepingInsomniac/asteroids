@@ -6,10 +6,11 @@ include LxGame
 require "./ship"
 require "./asteroid"
 require "./bullet"
+require "./explosion"
 
 WIDTH  = 600
 HEIGHT = 400
-SCALE  =   3
+SCALE  =   2
 
 module LxGame
   def draw_point(renderer, x, y)
@@ -26,7 +27,10 @@ end
 class Asteroids < Game
   @ship : Ship
   @asteroids = [] of Asteroid
+  @bullets = [] of Bullet
+  @explosions = [] of Explosion
   @controller : Controller(LibSDL::Keycode)
+  @asteroid_count = 3
 
   def initialize(*args)
     super
@@ -35,18 +39,7 @@ class Asteroids < Game
       ship.position = Vector2.new(x: width / 2.0, y: height / 2.0)
     end
 
-    8.times do
-      @asteroids << Asteroid.build do |a|
-        a.position = Vector2.new(x: rand(0.0..width.to_f), y: rand(0.0..height.to_f))
-        v_max = 30.0
-        a.velocity = Vector2.new(x: rand(-v_max..v_max), y: rand(-v_max..v_max))
-        a.rotation_speed = rand(-5.0..5.0)
-
-        size = rand(5.0..30.0)
-        a.mass = size
-        a.frame = VectorSprite.generate_circle(size.to_i, size: size, jitter: 3.0)
-      end
-    end
+    generate_asteroids
 
     @controller = Controller(LibSDL::Keycode).new({
       LibSDL::Keycode::UP    => "Thrust",
@@ -54,8 +47,21 @@ class Asteroids < Game
       LibSDL::Keycode::LEFT  => "Rotate Left",
       LibSDL::Keycode::SPACE => "Fire",
     })
+  end
 
-    @bullets = [] of Bullet
+  def generate_asteroids
+    @asteroid_count.times do
+      @asteroids << Asteroid.build do |a|
+        a.position = Vector2.new(x: rand(0.0..width.to_f), y: rand(0.0..height.to_f))
+        v_max = 30.0
+        a.velocity = Vector2.new(x: rand(-v_max..v_max), y: rand(-v_max..v_max))
+        a.rotation_speed = rand(-5.0..5.0)
+
+        size = rand(20.0..35.0)
+        a.mass = size
+        a.frame = VectorSprite.generate_circle(size.to_i, size: size, jitter: 3.0)
+      end
+    end
   end
 
   def wrap(position : Vector2)
@@ -69,6 +75,14 @@ class Asteroids < Game
   end
 
   def update(dt : Float64)
+    if @asteroids.size == 0
+      @asteroid_count += 1
+      generate_asteroids
+      @ship.position = Vector2.new(x: width / 2.0, y: height / 2.0)
+      @ship.velocity = Vector2.new(0.0, 0.0)
+      @ship.rotation_speed = 0.0
+    end
+
     @ship.rotate_right(dt) if @controller.action?("Rotate Right")
     @ship.rotate_left(dt) if @controller.action?("Rotate Left")
     @ship.thrust(dt) if @controller.action?("Thrust")
@@ -82,6 +96,7 @@ class Asteroids < Game
 
     @bullets.each do |bullet|
       bullet.update(dt)
+      bullet.position = wrap(bullet.position)
     end
 
     @bullets = @bullets.reject { |b| b.age >= 4.0 }
@@ -99,7 +114,7 @@ class Asteroids < Game
         if a.collides_with?(b)
           collission_pairs << {a, b}
           a.resolve_collision(b)
-          puts "#{a} collided with #{b}"
+          # puts "#{a} collided with #{b}"
         end
       end
     end
@@ -107,7 +122,7 @@ class Asteroids < Game
     @bullets.each do |bullet|
       @asteroids.each do |asteroid|
         if bullet.collides_with?(asteroid)
-          if asteroid.mass > 3.0
+          if asteroid.mass > 7.0
             2.times do
               @asteroids << Asteroid.build do |a|
                 a.position = asteroid.position + Vector2.new(rand(-1.0..1.0), rand(-1.0..1.0))
@@ -122,11 +137,28 @@ class Asteroids < Game
             end
           end
 
+          @explosions << Explosion.build do |e|
+            e.size = asteroid.average_radius * 2
+            e.position = bullet.position
+            e.velocity = asteroid.velocity
+            e.emit_freq = 0.01
+            e.strength = 25
+            e.max_age = 1.0
+          end
+
           @asteroids.delete(asteroid)
           @bullets.delete(bullet)
         end
       end
     end
+
+    @explosions.each do |e|
+      e.update(dt)
+      e.position = wrap(e.position)
+      e.emitting = false if e.age > 0.5
+    end
+
+    @explosions.reject! { |e| e.emitting == false && e.particles.none? }
   end
 
   def draw
@@ -135,6 +167,7 @@ class Asteroids < Game
     @ship.draw(@renderer)
     @bullets.each { |b| b.draw(@renderer) }
     @asteroids.each { |a| a.draw(@renderer) }
+    @explosions.each { |e| e.draw(@renderer) }
   end
 end
 

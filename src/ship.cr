@@ -9,7 +9,7 @@ class Ship < VectorSprite
     super
 
     @r_engine = 10.0
-    @t_engine = 20.0
+    @t_engine = 50.0
 
     @frame = [
       Vector2.new(5.0, 0.0),
