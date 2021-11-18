@@ -8,6 +8,8 @@ class Ship < Sprite
   @emitter : Emitter
   @l_emitter : Emitter
   @r_emitter : Emitter
+  @projected_points : Array(Vector2)? = nil
+  property blew_up : Bool = false
 
   def initialize
     super
@@ -76,7 +78,20 @@ class Ship < Sprite
     @velocity.y += Math.sin(@rotation) * dt * @t_engine
   end
 
+  def projected_points
+    @projected_points ||= project_points(@frame)
+  end
+
+  def collides_with?(asteroid : Asteroid)
+    return false if @blew_up
+    projected_points.any? do |point|
+      asteroid.position.distance(point) < asteroid.radius
+    end
+  end
+
   def update(dt : Float64)
+    return if @blew_up
+    @projected_points = nil
     update_position(dt)
 
     @fire_cooldown -= dt unless can_fire?
@@ -98,6 +113,7 @@ class Ship < Sprite
   end
 
   def draw(renderer)
+    return if @blew_up
     @emitter.draw(renderer)
     @emitter.emitting = false
     @l_emitter.draw(renderer)
@@ -105,8 +121,7 @@ class Ship < Sprite
     @r_emitter.draw(renderer)
     @r_emitter.emitting = false
 
-    frame = project_points(@frame)
     renderer.draw_color = SDL::Color[255, 255, 255, 255]
-    draw_frame(renderer, frame)
+    draw_frame(renderer, projected_points)
   end
 end

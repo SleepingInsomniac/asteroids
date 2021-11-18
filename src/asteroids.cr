@@ -31,6 +31,7 @@ class Asteroids < Game
   @explosions = [] of Explosion
   @controller : Controller(LibSDL::Keycode)
   @asteroid_count = 3
+  @restart_timer = 0.0
 
   def initialize(*args)
     super
@@ -39,7 +40,7 @@ class Asteroids < Game
       ship.position = Vector2.new(x: width / 2.0, y: height / 2.0)
     end
 
-    generate_asteroids
+    setup_round
 
     @controller = Controller(LibSDL::Keycode).new({
       LibSDL::Keycode::UP    => "Thrust",
@@ -50,9 +51,15 @@ class Asteroids < Game
   end
 
   def generate_asteroids
+    center_size = Vector2.new(20.0, 20.0)
+    center_pos = Vector2.new((width.to_f / 2.0) - (center_size.x / 2.0), (height.to_f / 2.0) - (center_size.y / 2.0))
+
     @asteroid_count.times do
       @asteroids << Asteroid.build do |a|
-        a.position = Vector2.new(x: rand(0.0..width.to_f), y: rand(0.0..height.to_f))
+        loop do
+          a.position = Vector2.new(x: rand(0.0..width.to_f), y: rand(0.0..height.to_f))
+          break if (a.position.x < center_pos.x || a.position.x > center_pos.x + center_size.x) && (a.position.y < center_pos.y || a.position.y > center_pos.y + center_size.y)
+        end
         v_max = 30.0
         a.velocity = Vector2.new(x: rand(-v_max..v_max), y: rand(-v_max..v_max))
         a.rotation_speed = rand(-5.0..5.0)
@@ -62,6 +69,17 @@ class Asteroids < Game
         a.frame = VectorSprite.generate_circle(size.to_i, size: size, jitter: 3.0)
       end
     end
+  end
+
+  def setup_round
+    @restart_timer = 0.0
+    @asteroids = [] of Asteroid
+    generate_asteroids
+    @bullets = [] of Bullet
+    @ship.blew_up = false
+    @ship.position = Vector2.new(x: width / 2.0, y: height / 2.0)
+    @ship.velocity = Vector2.new(0.0, 0.0)
+    @ship.rotation_speed = 0.0
   end
 
   def wrap(position : Vector2)
@@ -75,13 +93,13 @@ class Asteroids < Game
   end
 
   def update(dt : Float64)
-    if @asteroids.size == 0
+    if @asteroids.size == 0 && !@ship.blew_up
       @asteroid_count += 1
-      generate_asteroids
-      @ship.position = Vector2.new(x: width / 2.0, y: height / 2.0)
-      @ship.velocity = Vector2.new(0.0, 0.0)
-      @ship.rotation_speed = 0.0
+      setup_round
     end
+
+    @restart_timer += dt if @ship.blew_up
+    setup_round if @restart_timer > 3.0
 
     @ship.rotate_right(dt) if @controller.action?("Rotate Right")
     @ship.rotate_left(dt) if @controller.action?("Rotate Left")
@@ -159,6 +177,19 @@ class Asteroids < Game
     end
 
     @explosions.reject! { |e| e.emitting == false && e.particles.none? }
+    @asteroids.each do |a|
+      if @ship.collides_with?(a)
+        @ship.blew_up = true
+        @explosions << Explosion.build do |e|
+          e.size = 10.0
+          e.position = @ship.position
+          e.velocity = @ship.velocity
+          e.emit_freq = 0.01
+          e.strength = 30
+          e.max_age = 1.0
+        end
+      end
+    end
   end
 
   def draw
