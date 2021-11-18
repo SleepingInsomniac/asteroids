@@ -51,7 +51,7 @@ class Asteroids < Game
   end
 
   def generate_asteroids
-    center_size = Vector2.new(20.0, 20.0)
+    center_size = Vector2.new(50.0, 50.0)
     center_pos = Vector2.new((width.to_f / 2.0) - (center_size.x / 2.0), (height.to_f / 2.0) - (center_size.y / 2.0))
 
     @asteroid_count.times do
