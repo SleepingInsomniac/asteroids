@@ -1,4 +1,8 @@
-class Ship < VectorSprite
+require "./lx_game/sprite/vector_sprite"
+
+class Ship < Sprite
+  include LxGame::VectorSprite
+
   @fire_cooldown : Float64 = 0.0
   @fire_rate : Float64 = 0.2
   @emitter : Emitter
@@ -73,7 +77,7 @@ class Ship < VectorSprite
   end
 
   def update(dt : Float64)
-    super
+    update_position(dt)
 
     @fire_cooldown -= dt unless can_fire?
 

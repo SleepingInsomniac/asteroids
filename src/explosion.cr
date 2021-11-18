@@ -1,8 +1,5 @@
-class Explosion < LxGame::Emitter
-  getter age : Float64 = 0.0
+require "./lx_game/sprite/age"
 
-  def update(dt : Float64)
-    super
-    @age += dt
-  end
+class Explosion < LxGame::Emitter
+  include LxGame::SpriteAge
 end

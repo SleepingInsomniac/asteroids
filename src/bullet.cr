@@ -1,9 +1,10 @@
-class Bullet < Sprite
-  property age : Float64 = 0.0
+require "./lx_game/sprite/age"
 
-  def update(dt : Float64)
+class Bullet < Sprite
+  include LxGame::SpriteAge
+
+  def update(dt)
     update_position(dt)
-    @age += dt
   end
 
   def draw(renderer)
@@ -13,6 +14,6 @@ class Bullet < Sprite
   end
 
   def collides_with?(other : VectorSprite)
-    @position.distance(other.position) < other.average_radius
+    @position.distance(other.position) < other.radius
   end
 end
