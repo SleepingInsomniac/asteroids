@@ -8,7 +8,7 @@ module LxGame
     property max_age : Float64 = 1.0
     property emit_freq : Float64 = 0.05
     property strength : Float64 = 50.0
-    @last_emitted : Float64 = 0.0
+    getter last_emitted : Float64 = 0.0
     property emit_angle : Float64 = 2 * Math::PI
     property size : Float64 = 0.0
 
@@ -41,7 +41,7 @@ module LxGame
       end
 
       @particles.each { |particle| particle.update(dt) }
-      @particles.reject! { |particle| particle.dead? }
+      @particles.reject!(&.dead?)
     end
 
     def draw(renderer : SDL::Renderer)

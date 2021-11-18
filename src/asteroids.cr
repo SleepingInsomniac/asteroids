@@ -99,7 +99,7 @@ class Asteroids < Game
       bullet.position = wrap(bullet.position)
     end
 
-    @bullets = @bullets.reject { |b| b.age >= 4.0 }
+    @bullets = @bullets.reject(&.dead?)
     @asteroids.each do |a|
       a.update(dt)
       a.position = wrap(a.position)

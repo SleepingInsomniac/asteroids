@@ -3,8 +3,11 @@ require "./lx_game/sprite/age"
 class Bullet < Sprite
   include LxGame::SpriteAge
 
+  @lifespan = 4.0
+
   def update(dt)
-    super
+    update_age(dt)
+    return if dead?
     update_position(dt)
   end
 

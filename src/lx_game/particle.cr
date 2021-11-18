@@ -1,19 +1,14 @@
 require "./sprite"
+require "./sprite/age"
 
 module LxGame
   class Particle < Sprite
-    property age : Float64 = 0.0
-    property lifespan : Float64 = 4.0
-    @dead : Bool = false
-
-    def dead?
-      @age >= @lifespan
-    end
+    include SpriteAge
 
     def update(dt : Float64)
+      update_age(dt)
       return if dead?
       update_position(dt)
-      @age += dt
     end
 
     def draw(renderer : SDL::Renderer)
