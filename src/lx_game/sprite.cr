@@ -31,6 +31,6 @@ module LxGame
     end
 
     abstract def update(dt : Float64)
-    abstract def draw(renderer : SDL::Renderer)
+    abstract def draw(engine : Game)
   end
 end

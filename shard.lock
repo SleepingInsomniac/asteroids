@@ -6,5 +6,5 @@ shards:
 
   sdl:
     git: https://github.com/ysbaddaden/sdl.cr.git
-    version: 0.1.0+git.commit.d2aa0fb2ee30e42fc8d046d2d00c03c76879cb17
+    version: 0.1.0+git.commit.0ded44711246feb3aa3ba28fea249c9b03be061b
 

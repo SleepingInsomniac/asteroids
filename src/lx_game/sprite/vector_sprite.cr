@@ -55,17 +55,17 @@ module LxGame
       end
     end
 
-    def draw_frame(renderer : SDL::Renderer, frame = @frame)
+    def draw_frame(engine : Game, frame = @frame, color : Pixel = Pixel.new)
       0.upto(frame.size - 1) do |n|
-        draw_line(renderer, frame[n], frame[(n + 1) % frame.size])
+        engine.draw_line(frame[n], frame[(n + 1) % frame.size], color)
       end
     end
 
-    def draw_radius(renderer : SDL::Renderer, points = 30)
+    def draw_radius(engine : Game, points = 30, color : Pixel = Pixel.new)
       circle = self.class.generate_circle(points, average_radius).map do |point|
         point + @position
       end
-      draw_frame(renderer, frame: circle)
+      draw_frame(engine, frame: circle, color: color)
     end
   end
 end

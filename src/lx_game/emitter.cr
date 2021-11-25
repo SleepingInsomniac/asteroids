@@ -12,6 +12,8 @@ module LxGame
     property emit_angle : Float64 = 2 * Math::PI
     property size : Float64 = 0.0
 
+    # property color : Pixel = Pixel.new
+
     def generate_particle
       Particle.build do |particle|
         particle.position = @position
@@ -44,11 +46,9 @@ module LxGame
       @particles.reject!(&.dead?)
     end
 
-    def draw(renderer : SDL::Renderer)
-      renderer.draw_color = SDL::Color[255, 255, 0, 255]
-
+    def draw(engine)
       @particles.each do |particle|
-        particle.draw(renderer)
+        particle.draw(engine)
       end
     end
   end

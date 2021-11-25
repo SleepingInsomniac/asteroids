@@ -11,11 +11,11 @@ module LxGame
       update_position(dt)
     end
 
-    def draw(renderer : SDL::Renderer)
+    def draw(engine)
       return if dead?
-      brightness = ((@lifespan - @age) / @lifespan) * 255
-      renderer.draw_color = SDL::Color[brightness / 2, brightness / 2, brightness / 2]
-      renderer.draw_point(@position.x.to_i, @position.y.to_i)
+      brightness = ((((@lifespan - @age) / @lifespan) * 255) / 2).to_u8
+      color = Pixel.new(r: brightness, g: brightness, b: brightness)
+      engine.draw_point(@position.x.to_i, @position.y.to_i, color)
     end
   end
 end

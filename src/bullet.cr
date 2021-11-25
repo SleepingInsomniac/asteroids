@@ -11,10 +11,10 @@ class Bullet < Sprite
     update_position(dt)
   end
 
-  def draw(renderer)
-    brightness = ((4.0 - self.age) / 4.0) * 255
-    renderer.draw_color = SDL::Color[brightness, brightness, 0]
-    renderer.draw_point(@position.x.to_i, @position.y.to_i)
+  def draw(engine)
+    brightness = (((4.0 - self.age) / 4.0) * 255).to_u8
+    color = Pixel.new(r: brightness, g: brightness, b: 0_u8)
+    engine.draw_point(@position.x.to_i, @position.y.to_i, color)
   end
 
   def collides_with?(other : VectorSprite)

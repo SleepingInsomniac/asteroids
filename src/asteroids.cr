@@ -8,22 +8,6 @@ require "./asteroid"
 require "./bullet"
 require "./explosion"
 
-WIDTH  = 600
-HEIGHT = 400
-SCALE  =   2
-
-module LxGame
-  def draw_point(renderer, x, y)
-    x = x % WIDTH
-    y = y % HEIGHT
-
-    x = WIDTH + x if x < 0
-    y = HEIGHT + y if y < 0
-
-    renderer.draw_point(x, y)
-  end
-end
-
 class Asteroids < Game
   @ship : Ship
   @asteroids = [] of Asteroid
@@ -48,6 +32,17 @@ class Asteroids < Game
       LibSDL::Keycode::LEFT  => "Rotate Left",
       LibSDL::Keycode::SPACE => "Fire",
     })
+  end
+
+  # override to wrap the coordinates
+  def draw_point(x : Int32, y : Int32, pixel : Pixel, surface = @screen)
+    x = x % @width
+    y = y % @height
+
+    x = @width + x if x < 0
+    y = @height + y if y < 0
+
+    super(x, y, pixel, surface)
   end
 
   def generate_asteroids
@@ -192,15 +187,14 @@ class Asteroids < Game
     end
   end
 
-  def draw
-    @renderer.draw_color = SDL::Color[0, 0, 0, 255]
-    @renderer.clear
-    @ship.draw(@renderer)
-    @bullets.each { |b| b.draw(@renderer) }
-    @asteroids.each { |a| a.draw(@renderer) }
-    @explosions.each { |e| e.draw(@renderer) }
+  def draw(engine)
+    engine.clear
+    @ship.draw(engine)
+    @bullets.each { |b| b.draw(engine) }
+    @asteroids.each { |a| a.draw(engine) }
+    @explosions.each { |e| e.draw(engine) }
   end
 end
 
-game = Asteroids.new(WIDTH, HEIGHT, SCALE)
+game = Asteroids.new(500, 400, 2)
 game.run!

@@ -10,6 +10,7 @@ class Ship < Sprite
   @r_emitter : Emitter
   @projected_points : Array(Vector2)? = nil
   property blew_up : Bool = false
+  @color = Pixel.new
 
   def initialize
     super
@@ -112,16 +113,16 @@ class Ship < Sprite
     @r_emitter.rotation = @rotation + 1.5
   end
 
-  def draw(renderer)
+  def draw(engine)
     return if @blew_up
-    @emitter.draw(renderer)
+    @emitter.draw(engine)
     @emitter.emitting = false
-    @l_emitter.draw(renderer)
+    @l_emitter.draw(engine)
     @l_emitter.emitting = false
-    @r_emitter.draw(renderer)
+    @r_emitter.draw(engine)
     @r_emitter.emitting = false
 
-    renderer.draw_color = SDL::Color[255, 255, 255, 255]
-    draw_frame(renderer, projected_points)
+    # renderer.draw_color = SDL::Color[255, 255, 255, 255]
+    draw_frame(engine, projected_points, @color)
   end
 end

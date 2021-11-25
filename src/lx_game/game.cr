@@ -1,3 +1,6 @@
+require "./lib_sdl"
+require "./pixel"
+
 module LxGame
   abstract class Game
     FPS_INTERVAL = 1.0
@@ -15,18 +18,63 @@ module LxGame
     def initialize(@width, @height, @scale = 1, @title = self.class.name)
       SDL.init(SDL::Init::VIDEO)
       @window = SDL::Window.new(@title, @width * @scale, @height * @scale)
-      @renderer = SDL::Renderer.new(@window, flags: SDL::Renderer::Flags::SOFTWARE)
+      @renderer = SDL::Renderer.new(@window, flags: SDL::Renderer::Flags::PRESENTVSYNC) # , flags: SDL::Renderer::Flags::SOFTWARE)
       @renderer.scale = {@scale, @scale}
+      @screen = SDL::Surface.new(LibSDL.create_rgb_surface(
+        flags: 0, width: @width, height: @height, depth: 32,
+        r_mask: 0xFF000000, g_mask: 0x00FF0000, b_mask: 0x0000FF00, a_mask: 0x000000FF
+      ))
     end
 
     abstract def update(dt : Float64)
-    abstract def draw
+    abstract def draw(engine : Game)
 
     def elapsed_time
       Time.monotonic.total_milliseconds
     end
 
-    def engine_update
+    def clear(r = 0, g = 0, b = 0)
+      @screen.fill(0, 0, 0)
+    end
+
+    def draw_point(x : Int32, y : Int32, pixel : Pixel, surface = @screen)
+      target = surface.pixels + (y * surface.pitch) + (x * 4)
+      target.as(Pointer(UInt32)).value = pixel.format(surface.format)
+    end
+
+    # Draw a line using Bresenham’s Algorithm
+    def draw_line(p1 : Vector2, p2 : Vector2, pixel : Pixel, surface = @screen)
+      return draw_line(p2, p1, pixel, surface) if p1.x > p2.x
+      x1, y1, x2, y2 = p1.x.to_i, p1.y.to_i, p2.x.to_i, p2.y.to_i
+
+      dx = (x2 - x1).abs
+      dy = -(y2 - y1).abs
+
+      sx = x1 < x2 ? 1 : -1
+      sy = y1 < y2 ? 1 : -1
+
+      d = dx + dy
+      x, y = x1, y1
+
+      loop do
+        draw_point(x, y, pixel, surface)
+        break if x == x2 && y == y2
+
+        d2 = d + d
+
+        if d2 >= dy
+          d += dy
+          x += sx
+        end
+
+        if d2 <= dx
+          d += dx
+          y += sy
+        end
+      end
+    end
+
+    private def engine_update
       @fps_frames += 1
       et = elapsed_time
 
@@ -41,8 +89,12 @@ module LxGame
       @last_time = et
     end
 
-    def engine_draw
-      draw
+    private def engine_draw
+      @screen.lock do
+        draw(self)
+      end
+
+      @renderer.copy(SDL::Texture.from(@screen, @renderer))
       @renderer.present
     end
 

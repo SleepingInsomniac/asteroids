@@ -6,6 +6,7 @@ class Asteroid < Sprite
   include LxGame::VectorSprite
 
   property size : Float64 = 1.0
+  property color : Pixel = Pixel.new(128, 128, 128, 255)
 
   def initialize
     super
@@ -16,11 +17,8 @@ class Asteroid < Sprite
     update_position(dt)
   end
 
-  def draw(renderer)
-    # renderer.draw_color = SDL::Color[0, 100, 100, 255]
-    # draw_radius(renderer)
+  def draw(engine)
     frame = project_points(points: @frame, scale: Vector2.new(@size, @size))
-    renderer.draw_color = SDL::Color[128, 128, 128, 255]
-    draw_frame(renderer, frame)
+    draw_frame(engine, frame, color)
   end
 end
