@@ -1,7 +1,8 @@
-require "./lx_game/sprite/age"
+require "pixelfaucet/emitter"
+require "pixelfaucet/sprite/age"
 
-class Explosion < LxGame::Emitter
-  include LxGame::SpriteAge
+class Explosion < PF::Emitter
+  include PF::SpriteAge
 
   def update(dt)
     update_age(dt)

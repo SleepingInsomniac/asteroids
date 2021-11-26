@@ -1,16 +1,20 @@
-require "./lx_game/sprite/vector_sprite"
+require "pixelfaucet/sprite"
+require "pixelfaucet/sprite/vector_sprite"
+require "pixelfaucet/emitter"
 
-class Ship < Sprite
-  include LxGame::VectorSprite
+class Ship < PF::Sprite
+  include PF::VectorSprite
 
   @fire_cooldown : Float64 = 0.0
   @fire_rate : Float64 = 0.2
-  @emitter : Emitter
-  @l_emitter : Emitter
-  @r_emitter : Emitter
+  @fire_speed = 125.0
+  @fire_recoil = 3.0
+  @emitter : PF::Emitter
+  @l_emitter : PF::Emitter
+  @r_emitter : PF::Emitter
   @projected_points : Array(Vector2)? = nil
   property blew_up : Bool = false
-  @color = Pixel.new
+  @color = PF::Pixel.new
 
   def initialize
     super
@@ -24,7 +28,7 @@ class Ship < Sprite
       Vector2.new(-3.0, -3.0),
     ]
 
-    @emitter = Emitter.build do |e|
+    @emitter = PF::Emitter.build do |e|
       e.position = @position
       e.emit_freq = 0.01
       e.emit_angle = 0.5
@@ -32,7 +36,7 @@ class Ship < Sprite
       e.max_age = 0.25
     end
 
-    @l_emitter = Emitter.build do |e|
+    @l_emitter = PF::Emitter.build do |e|
       e.position = @position
       e.emit_freq = 0.01
       e.emit_angle = 0.3
@@ -40,7 +44,7 @@ class Ship < Sprite
       e.max_age = 0.25
     end
 
-    @r_emitter = Emitter.build do |e|
+    @r_emitter = PF::Emitter.build do |e|
       e.position = @position
       e.emit_freq = 0.01
       e.emit_angle = 0.3
@@ -55,11 +59,11 @@ class Ship < Sprite
 
   def fire
     @fire_cooldown = @fire_rate
-    @velocity.x -= Math.cos(@rotation) * 3.0
-    @velocity.y -= Math.sin(@rotation) * 3.0
+    @velocity.x -= Math.cos(@rotation) * @fire_recoil
+    @velocity.y -= Math.sin(@rotation) * @fire_recoil
     Bullet.build do |bullet|
       bullet.position = project_points([@frame[0]]).first
-      bullet.velocity = @velocity + Vector2.new(Math.cos(@rotation), Math.sin(@rotation)) * 100.0
+      bullet.velocity = @velocity + Vector2.new(Math.cos(@rotation), Math.sin(@rotation)) * @fire_speed
     end
   end
 

@@ -13,8 +13,6 @@ crystal: 1.2.1
 license: MIT
 
 dependencies:
-  sdl:
-    github: ysbaddaden/sdl.cr
-  crystaledge:
-    github: unn4m3d/crystaledge
-    version: 0.2.6
+  pixelfaucet:
+    github: SleepingInsomniac/pixelfaucet
+    # version: 0.0.1

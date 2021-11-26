@@ -1,12 +1,13 @@
-require "./lx_game/sprite/circle_collision"
-require "./lx_game/sprite/vector_sprite"
+require "pixelfaucet/sprite"
+require "pixelfaucet/sprite/circle_collision"
+require "pixelfaucet/sprite/vector_sprite"
 
-class Asteroid < Sprite
-  include LxGame::CircleCollision
-  include LxGame::VectorSprite
+class Asteroid < PF::Sprite
+  include PF::CircleCollision
+  include PF::VectorSprite
 
   property size : Float64 = 1.0
-  property color : Pixel = Pixel.new(128, 128, 128, 255)
+  property color = PF::Pixel.new(128, 128, 128, 255)
 
   def initialize
     super

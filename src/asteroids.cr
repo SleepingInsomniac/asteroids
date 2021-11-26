@@ -1,19 +1,19 @@
 require "sdl"
 require "crystaledge"
 include CrystalEdge
-require "./lx_game/*"
-include LxGame
+require "pixelfaucet/game"
+
 require "./ship"
 require "./asteroid"
 require "./bullet"
 require "./explosion"
 
-class Asteroids < Game
+class Asteroids < PF::Game
   @ship : Ship
   @asteroids = [] of Asteroid
   @bullets = [] of Bullet
   @explosions = [] of Explosion
-  @controller : Controller(LibSDL::Keycode)
+  @controller : PF::Controller(LibSDL::Keycode)
   @asteroid_count = 3
   @restart_timer = 0.0
 
@@ -26,7 +26,7 @@ class Asteroids < Game
 
     setup_round
 
-    @controller = Controller(LibSDL::Keycode).new({
+    @controller = PF::Controller(LibSDL::Keycode).new({
       LibSDL::Keycode::UP    => "Thrust",
       LibSDL::Keycode::RIGHT => "Rotate Right",
       LibSDL::Keycode::LEFT  => "Rotate Left",
@@ -35,7 +35,7 @@ class Asteroids < Game
   end
 
   # override to wrap the coordinates
-  def draw_point(x : Int32, y : Int32, pixel : Pixel, surface = @screen)
+  def draw_point(x : Int32, y : Int32, pixel : PF::Pixel, surface = @screen)
     x = x % @width
     y = y % @height
 
@@ -61,7 +61,7 @@ class Asteroids < Game
 
         size = rand(20.0..35.0)
         a.mass = size
-        a.frame = VectorSprite.generate_circle(size.to_i, size: size, jitter: 3.0)
+        a.frame = PF::VectorSprite.generate_circle(size.to_i, size: size, jitter: 3.0)
       end
     end
   end
@@ -145,7 +145,7 @@ class Asteroids < Game
                 size = asteroid.average_radius / 2
                 a.mass = size
                 points = size < 6 ? 6 : size.to_i
-                a.frame = VectorSprite.generate_circle(points, size: size, jitter: 3.0)
+                a.frame = PF::VectorSprite.generate_circle(points, size: size, jitter: 3.0)
               end
             end
           end
@@ -187,14 +187,14 @@ class Asteroids < Game
     end
   end
 
-  def draw(engine)
-    engine.clear
-    @ship.draw(engine)
-    @bullets.each { |b| b.draw(engine) }
-    @asteroids.each { |a| a.draw(engine) }
-    @explosions.each { |e| e.draw(engine) }
+  def draw
+    clear
+    @ship.draw(self)
+    @bullets.each { |b| b.draw(self) }
+    @asteroids.each { |a| a.draw(self) }
+    @explosions.each { |e| e.draw(self) }
   end
 end
 
-game = Asteroids.new(500, 400, 2)
+game = Asteroids.new(600, 400, 2)
 game.run!
