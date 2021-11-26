@@ -6,7 +6,7 @@ shards:
 
   pixelfaucet:
     git: https://github.com/sleepinginsomniac/pixelfaucet.git
-    version: 0.0.1+git.commit.5b285d55403dafd318c19b7d4ef9069b67c19625
+    version: 0.0.1
 
   sdl:
     git: https://github.com/ysbaddaden/sdl.cr.git
