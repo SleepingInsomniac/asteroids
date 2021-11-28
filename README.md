@@ -1,18 +1,13 @@
-# asteroids
+# Asteroids
 
-TODO: Write a description here
+A simple implementation of the classic asteroids game written in Crystal using SDL2
 
-## Installation
+![screenshot](screenshot-1.gif)
 
-TODO: Write installation instructions here
+## Building
 
-## Usage
-
-TODO: Write usage instructions here
-
-## Development
-
-TODO: Write development instructions here
+- Install SDL2
+- run `shards build`
 
 ## Contributing
 
