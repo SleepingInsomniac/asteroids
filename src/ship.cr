@@ -1,10 +1,9 @@
-require "pixelfaucet/sprite"
-require "pixelfaucet/sprite/vector_sprite"
+require "pixelfaucet/entity"
+require "pixelfaucet/shape"
 require "pixelfaucet/emitter"
+require "./entity"
 
-class Ship < PF::Sprite
-  include PF::VectorSprite
-
+class Ship < Entity
   @fire_cooldown : Float64 = 0.0
   @fire_rate : Float64 = 0.2
   @fire_speed = 125.0
@@ -12,45 +11,41 @@ class Ship < PF::Sprite
   @emitter : PF::Emitter
   @l_emitter : PF::Emitter
   @r_emitter : PF::Emitter
-  @projected_points : Array(Vector2)? = nil
+  @projected_points : Array(PF::Point(Float64))? = nil
   property blew_up : Bool = false
   @color = PF::Pixel.new
+  @frame = [] of PF::Point(Float64)
 
   def initialize
-    super
-
     @r_engine = 10.0
     @t_engine = 50.0
 
     @frame = [
-      Vector2.new(5.0, 0.0),
-      Vector2.new(-3.0, 3.0),
-      Vector2.new(-3.0, -3.0),
+      PF::Point.new(5.0, 0.0),
+      PF::Point.new(-3.0, 3.0),
+      PF::Point.new(-3.0, -3.0),
     ]
 
-    @emitter = PF::Emitter.build do |e|
-      e.position = @position
-      e.emit_freq = 0.01
-      e.emit_angle = 0.5
-      e.strength = 50.0
-      e.max_age = 0.25
-    end
+    @emitter = PF::Emitter.new
+    @emitter.position = @position
+    @emitter.emit_freq = 0.01
+    @emitter.emit_angle = 0.5
+    @emitter.strength = 50.0
+    @emitter.max_age = 0.25
 
-    @l_emitter = PF::Emitter.build do |e|
-      e.position = @position
-      e.emit_freq = 0.01
-      e.emit_angle = 0.3
-      e.strength = 25.0
-      e.max_age = 0.25
-    end
+    @l_emitter = PF::Emitter.new
+    @l_emitter.position = @position
+    @l_emitter.emit_freq = 0.01
+    @l_emitter.emit_angle = 0.3
+    @l_emitter.strength = 25.0
+    @l_emitter.max_age = 0.25
 
-    @r_emitter = PF::Emitter.build do |e|
-      e.position = @position
-      e.emit_freq = 0.01
-      e.emit_angle = 0.3
-      e.strength = 25.0
-      e.max_age = 0.25
-    end
+    @r_emitter = PF::Emitter.new
+    @r_emitter.position = @position
+    @r_emitter.emit_freq = 0.01
+    @r_emitter.emit_angle = 0.3
+    @r_emitter.strength = 25.0
+    @r_emitter.max_age = 0.25
   end
 
   def can_fire?
@@ -61,10 +56,10 @@ class Ship < PF::Sprite
     @fire_cooldown = @fire_rate
     @velocity.x -= Math.cos(@rotation) * @fire_recoil
     @velocity.y -= Math.sin(@rotation) * @fire_recoil
-    Bullet.build do |bullet|
-      bullet.position = project_points([@frame[0]]).first
-      bullet.velocity = @velocity + Vector2.new(Math.cos(@rotation), Math.sin(@rotation)) * @fire_speed
-    end
+    b = Bullet.new
+    b.position = project({@frame[0]}).first
+    b.velocity = @velocity + PF::Point.new(Math.cos(@rotation), Math.sin(@rotation)) * @fire_speed
+    b
   end
 
   def rotate_right(dt : Float64, amount = @r_engine)
@@ -84,7 +79,7 @@ class Ship < PF::Sprite
   end
 
   def projected_points
-    @projected_points ||= project_points(@frame)
+    @projected_points ||= project(@frame)
   end
 
   def collides_with?(asteroid : Asteroid)
@@ -97,22 +92,22 @@ class Ship < PF::Sprite
   def update(dt : Float64)
     return if @blew_up
     @projected_points = nil
-    update_position(dt)
+    super(dt)
 
     @fire_cooldown -= dt unless can_fire?
 
     @emitter.update(dt)
-    @emitter.position = project_points([Vector2.new(-3.0, 0.0)]).first
+    @emitter.position = project({PF::Point.new(-3.0, 0.0)}).first
     @emitter.velocity = @velocity
     @emitter.rotation = @rotation - Math::PI
 
     @l_emitter.update(dt)
-    @l_emitter.position = project_points([Vector2.new(3.0, -1.0)]).first
+    @l_emitter.position = project({PF::Point.new(3.0, -1.0)}).first
     @l_emitter.velocity = @velocity
     @l_emitter.rotation = @rotation - 1.5
 
     @r_emitter.update(dt)
-    @r_emitter.position = project_points([Vector2.new(3.0, 1.0)]).first
+    @r_emitter.position = project({PF::Point.new(3.0, 1.0)}).first
     @r_emitter.velocity = @velocity
     @r_emitter.rotation = @rotation + 1.5
   end
@@ -127,6 +122,6 @@ class Ship < PF::Sprite
     @r_emitter.emitting = false
 
     # renderer.draw_color = SDL::Color[255, 255, 255, 255]
-    draw_frame(engine, projected_points, @color)
+    engine.fill_triangle(projected_points.map(&.to_i32), @color)
   end
 end

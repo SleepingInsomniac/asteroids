@@ -1,8 +1,8 @@
 require "pixelfaucet/emitter"
-require "pixelfaucet/sprite/age"
+require "pixelfaucet/entity/entity_age"
 
 class Explosion < PF::Emitter
-  include PF::SpriteAge
+  include PF::EntityAge
 
   def update(dt)
     update_age(dt)

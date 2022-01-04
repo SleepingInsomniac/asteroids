@@ -1,25 +1,26 @@
-require "pixelfaucet/sprite"
-require "pixelfaucet/sprite/circle_collision"
-require "pixelfaucet/sprite/vector_sprite"
+require "pixelfaucet/entity"
+require "pixelfaucet/entity/circle_collision"
+require "pixelfaucet/shape"
+require "./entity"
 
-class Asteroid < PF::Sprite
+class Asteroid < Entity
   include PF::CircleCollision
-  include PF::VectorSprite
 
   property size : Float64 = 1.0
   property color = PF::Pixel.new(128, 128, 128, 255)
-
-  def initialize
-    super
-    @frame = [] of Vector2
-  end
+  property frame : Array(PF::Point(Float64)) = [] of PF::Point(Float64)
+  @radius : Float64? = nil
 
   def update(dt)
-    update_position(dt)
+    super(dt)
   end
 
   def draw(engine)
-    frame = project_points(points: @frame, scale: Vector2.new(@size, @size))
-    draw_frame(engine, frame, color)
+    frame = project(points: @frame, scale: PF::Point(Float64).new(@size, @size))
+    engine.draw_shape(frame, color)
+  end
+
+  def radius
+    @radius ||= PF::Shape.average_radius(@frame)
   end
 end

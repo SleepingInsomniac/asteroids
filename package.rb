@@ -1,10 +1,14 @@
 #!/usr/bin/env ruby
 
 require 'fileutils'
+require 'yaml'
+require 'erb'
 
 APP_NAME = 'Asteroids'
 BUILD_DIR = "build/#{APP_NAME}.app/Contents"
 BINARY = 'asteroids'
+BREW_LIBS = ["sdl2"]
+MACOS_MIN_VER = "10.14"
 
 def gather_libs(file)
   libs = `otool -L #{file}`.lines
@@ -65,16 +69,36 @@ puts "Creating structure for #{APP_NAME}:"
   "#{BUILD_DIR}/Resources",
   "#{BUILD_DIR}/Frameworks",
 ].each do |folder|
-  puts "Create: #{folder}"
+  puts "  Create: #{folder}"
   FileUtils.mkdir_p folder
 end
 
-puts "Copying Info.plist"
-FileUtils.cp 'Info.plist', "#{BUILD_DIR}/"
+puts "Copying files"
+{
+  "Info.plist" => "#{BUILD_DIR}/"
+}.each do |source, dest|
+  puts "  Copy: #{source} => #{dest}"
+  FileUtils.cp source, dest
+end
 
-build_cmd = %{shards build --release --link-flags="-rpath @executable_path/../Frameworks -L #{`brew --prefix sdl2`.chomp}/lib/ -mmacosx-version-min=10.14 -headerpad_max_install_names"}
-puts "Building: `#{build_cmd}`"
-puts `#{build_cmd}`
+link_flags = [
+  "-rpath @executable_path/../Frameworks",
+  "-mmacosx-version-min=#{MACOS_MIN_VER}",
+  "-headerpad_max_install_names",
+]
+
+BREW_LIBS.each do |lib|
+  link_flags << "-L #{`brew --prefix #{lib}`.chomp}/lib/"
+end
+
+if File.exist?("bin/#{BINARY}")
+  FileUtils.rm "bin/#{BINARY}"
+end
+
+puts "Building: \n  #{link_flags.join("\n  ")}"
+cmd = %{shards build #{BINARY} --release --link-flags="#{link_flags.join(" ")}"}
+puts cmd
+puts `#{cmd}`
 
 FileUtils.cp "bin/#{BINARY}", "#{BUILD_DIR}/MacOS/#{BINARY}"
 

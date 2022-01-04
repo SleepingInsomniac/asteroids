@@ -1,15 +1,15 @@
-require "pixelfaucet/sprite"
-require "pixelfaucet/sprite/age"
+require "pixelfaucet/entity"
+require "pixelfaucet/entity/entity_age"
 
-class Bullet < PF::Sprite
-  include PF::SpriteAge
+class Bullet < PF::Entity
+  include PF::EntityAge
 
   @lifespan = 2.5
 
   def update(dt)
     update_age(dt)
     return if dead?
-    update_position(dt)
+    super(dt)
   end
 
   def draw(engine)
@@ -18,7 +18,7 @@ class Bullet < PF::Sprite
     engine.draw_point(@position.x.to_i, @position.y.to_i, color)
   end
 
-  def collides_with?(other : PF::VectorSprite)
-    @position.distance(other.position) < other.radius
+  def collides_with?(asteroid : Asteroid)
+    @position.distance(asteroid.position) < asteroid.radius
   end
 end
