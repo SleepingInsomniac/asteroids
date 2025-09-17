@@ -11,19 +11,19 @@ class Ship < Entity
   @emitter : PF::Emitter
   @l_emitter : PF::Emitter
   @r_emitter : PF::Emitter
-  @projected_points : Array(PF::Point(Float64))? = nil
+  @projected_points : Array(PF2d::Vec2(Float64))? = nil
   property blew_up : Bool = false
   @color = PF::Pixel.new
-  @frame = [] of PF::Point(Float64)
+  @frame = [] of PF2d::Vec2(Float64)
 
   def initialize
     @r_engine = 10.0
     @t_engine = 50.0
 
     @frame = [
-      PF::Point.new(5.0, 0.0),
-      PF::Point.new(-3.0, 3.0),
-      PF::Point.new(-3.0, -3.0),
+      PF2d::Vec2.new(5.0, 0.0),
+      PF2d::Vec2.new(-3.0, 3.0),
+      PF2d::Vec2.new(-3.0, -3.0),
     ]
 
     @emitter = PF::Emitter.new
@@ -58,7 +58,7 @@ class Ship < Entity
     @velocity.y -= Math.sin(@rotation) * @fire_recoil
     b = Bullet.new
     b.position = project({@frame[0]}).first
-    b.velocity = @velocity + PF::Point.new(Math.cos(@rotation), Math.sin(@rotation)) * @fire_speed
+    b.velocity = @velocity + PF2d::Vec2.new(Math.cos(@rotation), Math.sin(@rotation)) * @fire_speed
     b
   end
 
@@ -97,17 +97,17 @@ class Ship < Entity
     @fire_cooldown -= dt unless can_fire?
 
     @emitter.update(dt)
-    @emitter.position = project({PF::Point.new(-3.0, 0.0)}).first
+    @emitter.position = project({PF2d::Vec2.new(-3.0, 0.0)}).first
     @emitter.velocity = @velocity
     @emitter.rotation = @rotation - Math::PI
 
     @l_emitter.update(dt)
-    @l_emitter.position = project({PF::Point.new(3.0, -1.0)}).first
+    @l_emitter.position = project({PF2d::Vec2.new(3.0, -1.0)}).first
     @l_emitter.velocity = @velocity
     @l_emitter.rotation = @rotation - 1.5
 
     @r_emitter.update(dt)
-    @r_emitter.position = project({PF::Point.new(3.0, 1.0)}).first
+    @r_emitter.position = project({PF2d::Vec2.new(3.0, 1.0)}).first
     @r_emitter.velocity = @velocity
     @r_emitter.rotation = @rotation + 1.5
   end
