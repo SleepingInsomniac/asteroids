@@ -1,5 +1,5 @@
 name: asteroids
-version: 0.1.2
+version: 0.1.3
 
 authors:
   - Alex Clink <alexclink@gmail.com>
@@ -15,3 +15,4 @@ license: MIT
 dependencies:
   pixelfaucet:
     github: SleepingInsomniac/pixelfaucet
+    version: ~> 0.2.0

@@ -1,16 +1,29 @@
-require "pixelfaucet/game"
+require "pixelfaucet"
 
 require "./ship"
 require "./asteroid"
 require "./bullet"
 require "./explosion"
 
+class PF::Window
+  # redefine to wrap the coordinates
+  def draw_point(x, y, value)
+    x = x % width
+    y = y % height
+
+    x = width + x if x < 0
+    y = height + y if y < 0
+
+    super(x, y, pixel)
+  end
+end
+
 class Asteroids < PF::Game
   @ship : Ship
   @asteroids = [] of Asteroid
   @bullets = [] of Bullet
   @explosions = [] of Explosion
-  @controller : PF::Controller(PF::Keys)
+  @controller : PF::Keymap
   @asteroid_count = 3
   @restart_timer = 0.0
 
@@ -22,24 +35,21 @@ class Asteroids < PF::Game
 
     setup_round
 
-    @controller = PF::Controller(PF::Keys).new({
-      PF::Keys::UP     => "Thrust",
-      PF::Keys::LEFT   => "Rotate Left",
-      PF::Keys::RIGHT  => "Rotate Right",
-      PF::Keys::SPACE  => "Fire",
+    @controller = PF::Keymap.new({
+      PF::Scancode::Up     => "Thrust",
+      PF::Scancode::Left   => "Rotate Left",
+      PF::Scancode::Right  => "Rotate Right",
+      PF::Scancode::Space  => "Fire",
     })
-    plug_in @controller
+    keymap @controller
   end
 
-  # override to wrap the coordinates
-  def draw_point(x : Int32, y : Int32, pixel : PF::Pixel)
-    x = x % width
-    y = y % height
+  def width
+    window.width
+  end
 
-    x = width + x if x < 0
-    y = height + y if y < 0
-
-    super(x, y, pixel)
+  def height
+    window.height
   end
 
   def generate_asteroids
@@ -84,7 +94,9 @@ class Asteroids < PF::Game
     position
   end
 
-  def update(dt : Float64)
+  def update(delta_time)
+    dt = delta_time.total_seconds
+
     if @asteroids.size == 0 && !@ship.blew_up
       @asteroid_count += 1
       setup_round
@@ -184,12 +196,14 @@ class Asteroids < PF::Game
     end
   end
 
-  def draw
-    clear
-    @ship.draw(self)
-    @bullets.each { |b| b.draw(self) }
-    @asteroids.each { |a| a.draw(self) }
-    @explosions.each { |e| e.draw(self) }
+  def frame(delta_time)
+    window.draw do
+      window.clear
+      @ship.draw(window)
+      @bullets.each { |b| b.draw(window) }
+      @asteroids.each { |a| a.draw(window) }
+      @explosions.each { |e| e.draw(window) }
+    end
   end
 end
 

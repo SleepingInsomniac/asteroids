@@ -7,7 +7,7 @@ class Asteroid < Entity
   include PF::CircleCollision
 
   property size : Float64 = 1.0
-  property color = PF::Pixel.new(128, 128, 128, 255)
+  property color = PF::RGBA.new(128, 128, 128, 255)
   property frame : Array(PF2d::Vec2(Float64)) = [] of PF2d::Vec2(Float64)
   @radius : Float64? = nil
 

@@ -13,7 +13,7 @@ class Ship < Entity
   @r_emitter : PF::Emitter
   @projected_points : Array(PF2d::Vec2(Float64))? = nil
   property blew_up : Bool = false
-  @color = PF::Pixel.new
+  @color = PF::RGBA.new(255,255,255)
   @frame = [] of PF2d::Vec2(Float64)
 
   def initialize
@@ -112,16 +112,15 @@ class Ship < Entity
     @r_emitter.rotation = @rotation + 1.5
   end
 
-  def draw(engine)
+  def draw(drawable)
     return if @blew_up
-    @emitter.draw(engine)
+    @emitter.draw(drawable)
     @emitter.emitting = false
-    @l_emitter.draw(engine)
+    @l_emitter.draw(drawable)
     @l_emitter.emitting = false
-    @r_emitter.draw(engine)
+    @r_emitter.draw(drawable)
     @r_emitter.emitting = false
 
-    # renderer.draw_color = SDL::Color[255, 255, 255, 255]
-    engine.fill_triangle(projected_points.map(&.to_i32), @color)
+    drawable.fill_triangle(projected_points.map(&.to_i32), @color)
   end
 end
